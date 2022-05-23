@@ -149,7 +149,7 @@ namespace FreeNet
             if(this.session_created_callback != null)
             {
                 user_token = receive_args.UserToken as CUserToken;
-                this.session_created_callback(user_token);
+                this.session_created_callback(user_token);  // CSampleServer에서 CUserToken의 token에 IPeer메서드를 묶어, CGameUser.token에 복사하여 List<CUserGame>배열에 추가
             }
 
             Begin_Receive(client_socket, receive_args, send_args);
@@ -166,11 +166,12 @@ namespace FreeNet
 
             bool pending = socket.ReceiveAsync(receive_args);
             if (!pending)
-                Process_Receive(receive_args);
+                Process_Receive(receive_args);  // 동기로 완료됐을 경우, 수동으로 완료 메서드(콜백) 호출
         }
 
         /// <summary>
         /// 이 메서드는 소켓에서 주거나 받는 작업이 완료되었을 때면 언제든지 호출된다.
+        /// 처음에 수신/전송 풀에 등록할 때, 설정한 완료 콜백
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">소켓비동기이벤트객체는 완료된 받기 작업에 연관되어 있다.</param>

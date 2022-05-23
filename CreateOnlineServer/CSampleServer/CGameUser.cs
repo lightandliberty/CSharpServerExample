@@ -11,6 +11,7 @@ namespace CSampleServer
 
     /// <summary>
     /// 하나의 session객체를 나타낸다.
+    /// token하나 IPeer메서드5개
     /// </summary>
     class CGameUser : IPeer
     {

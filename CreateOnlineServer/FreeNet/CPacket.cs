@@ -30,6 +30,7 @@ namespace FreeNet
         /// CPacketBufferManager의 Stack<CPacket> pool에서 Pop()해서 가져 오므로, 여기서 파괴하면 다시 Stack<CPacket> pool에 Push()를 함.
         /// </summary>
         /// <param name="packet"></param>
+        // 가져온 CPacketBufferManager의 풀에 다시 Push
         public static void Destroy(CPacket packet)
         {
             CPacketBufferManager.Push(packet); 
@@ -96,6 +97,7 @@ namespace FreeNet
         /// </summary>
         /// <param name="source"></param>
         /// <param name="srcPosition"></param>
+        /// 원본 배열과 원본 시작 인덱스를 복사한다.
         public void OverWrite(byte[] source, int srcPosition)
         {
             Array.Copy(source, this.buffer, source.Length);
@@ -103,6 +105,7 @@ namespace FreeNet
         }
 
         // byte[]를 byte로
+        // byte데이터만큼 읽어 들임.
         public byte Pop_Byte()
         {
             byte data = (byte)BitConverter.ToInt16(this.buffer, this.position);
@@ -111,6 +114,7 @@ namespace FreeNet
         }
 
         // byte[]를 short(Int16)으로
+        // short데이터만큼 읽어들임.
         public Int16 Pop_Int16()
         {
             Int16 data = BitConverter.ToInt16(this.buffer, this.position);
@@ -119,6 +123,7 @@ namespace FreeNet
         }
 
         // byte[]를 long(Int32)로
+        // int데이터만큼 읽어들임.
         public Int32 Pop_Int32()
         {
             Int32 data = BitConverter.ToInt32(this.buffer, this.position);
@@ -126,6 +131,7 @@ namespace FreeNet
             return data;
         }
 
+        // CPacket.position위치에서 Int16만큼 읽어 들여 저장 후, 저장한 길이만큼 버퍼에서 읽어 UTF8로 디코딩 해서 문자열 리턴.
         public string Pop_String()
         {
             // 문자열 길이는 최대 2바이트까지. 0 ~ 32767
@@ -140,12 +146,13 @@ namespace FreeNet
             return data;
         }
 
+        // 헤더 다음위치에 protocol_id를 기록.
         public void Set_Protocol(Int16 protocol_id)
         {
             this.protocol_id = protocol_id;
             // this.buffer = new byte[1024];
 
-            // 헤더는 나중에 넣을 것이므로 데이터부터 넣을 수 있도록 위치를 점프시켜 놓는다.
+            // 헤더 다음부분에 protocol_id를 저장하므로,(헤더는 나중에 넣을 것이므로) 데이터부터 넣을 수 있도록 위치를 점프시켜 놓는다.
             this.position = Defines.HEADERSIZE;
 
             Push_Int16(protocol_id);
@@ -155,6 +162,7 @@ namespace FreeNet
         // 헤더가 될 바이트 배열에 본문의 크기를 저장 후, CPacket.buffer 멤버에 복사
         // 패킷의 가장 앞 부분에, 바이트 배열 byte[] this.buffer의 현재 index - 헤더의 크기 2를 뺀 부분(지금까지 기록한 바이트 배열의 크기)(즉 CPacket 본문의 바이트 길이)를
         // this.buffer의 앞 부분에 복사
+        // 헤더에 본문의 크기를 기록.(그러므로, 전송 전 본문의 크기가 확정되었을 때 사용됨)
         public void Record_Size()
         {
             Int16 body_size = (Int16)(this.position - Defines.HEADERSIZE);
@@ -166,7 +174,7 @@ namespace FreeNet
         /// Int16 데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 position위치부터 이어서 저장. position은 데이터의 크기만큼 이동.
         /// </summary>
         /// <param name="data"></param>
-        // push()에 오버로딩된 같은 정의가 있음.
+        // CPacket.position위치에 Int16데이터를 기록.
         public void Push_Int16(Int16 data)  // Int16(short)형 데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 position인덱스부터 이어서 저장. position은 복사한 byte[] 길이만큼 이동.
         {
             byte[] temp_buffer = BitConverter.GetBytes(data);   // Int16형 data를 byte[] 배열에 저장
@@ -174,17 +182,19 @@ namespace FreeNet
             this.position += temp_buffer.Length;                // 패킷의 기록할 인덱스 위치를 임시 버퍼의 길이로 저장.
         }
 
+        // byte데이터를 기록
         public void Push(byte data)         // byte데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 position인덱스부터 이어서 저장 
         {
             byte[] temp_buffer = BitConverter.GetBytes(data);   // byte데이터를 byte[] 배열에 저장.
             temp_buffer.CopyTo(this.buffer, this.position);     // byte데이터를 byte[]배열에 저장해서, CPacket의 buffer에 position인덱스부터 저장
-            this.position += sizeof(byte);
+            this.position += sizeof(byte);                      
         }
 
         /// <summary>
         /// Int16데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 positino위치부터 이어서 저장. position은 데이터의 크기만큼 이동.
         /// </summary>
         /// <param name="data"></param>
+        // Int16데이터를 기록
         public void Push(Int16 data)
         {
             byte[] temp_buffer = BitConverter.GetBytes(data);   // data를 byte[] 배열에 저장
@@ -196,6 +206,7 @@ namespace FreeNet
         /// Int32 데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 position위치부터 이어서 저장. position은 데이터의 크기만큼 이동.
         /// </summary>
         /// <param name="data"></param>
+        // Int32 데이터를 기록
         public void Push(Int32 data)        // Int32 데이터를 크기에 맞는 byte[]배열에 저장해서, CPacket의 buffer에 position위치부터 이어서 저장. position은 데이터의 크기만큼 이동.
         {
             byte[] temp_buffer = BitConverter.GetBytes(data);
@@ -211,6 +222,7 @@ namespace FreeNet
         /// CPacket.position을 인코딩한 배열의 크기만큼 오프셋
         /// </summary>
         /// <param name="data"></param>
+        // string데이터를 UTF-8로 인코딩한 길이를 Int16형 크기로 기록 후, UTF-8로 인코딩한 string데이터를 기록
         public void Push(string data)
         {
             byte[] temp_buffer = Encoding.UTF8.GetBytes(data);  // string데이터를 byte[] 배열에 저장

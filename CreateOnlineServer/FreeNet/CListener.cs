@@ -46,12 +46,13 @@ namespace FreeNet
             try
             {
                 listen_socket.Bind(endpoint);
-                listen_socket.Listen(backLog);
+                listen_socket.Listen(backLog);  // 소켓을 수신 상태로 둠.
+                // Do_Listen()에서 listen_socket.AcceptAsync(this.accept_args)를 실행. 콜백은 수신객체에 설정한 접속 콜백메서드.
 
                 this.accept_args = new SocketAsyncEventArgs();
-                this.accept_args.Completed += new EventHandler<SocketAsyncEventArgs>(On_Accept_Completed);
+                this.accept_args.Completed += new EventHandler<SocketAsyncEventArgs>(On_Accept_Completed);  // On_Accept_Completed에서는 소켓만 저장해서, On_New_Client를 실행하고, 새로 수신객체를 생성한 후, 다시 접속을 받는다.
 
-                Thread listen_thread = new Thread(Do_Listen);
+                Thread listen_thread = new Thread(Do_Listen);   // 매개변수 없이 스레드를 실행하는 방법을 사용하므로, 멤버변수를 사용한 듯하다.
                 listen_thread.Start();
             }
             catch(Exception e)
