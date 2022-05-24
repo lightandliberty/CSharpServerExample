@@ -92,8 +92,12 @@ namespace FreeNet
                 // 즉시 완료되면 이벤트가 발생하지 않으므로, 리턴 값이 false일 경우, 콜백 메서드를 직접 호출
                 // pending상태라면 비동기 요청이 들어간 상태이므로, 콜백 메서드를 기다리면 됩니다.
                 // Socket.AcceptAsync() https://docs.microsoft.com/ko-kr/dotnet/api/system.net.sockets.socket.acceptasync?redirectedfrom=MSDN&view=net-6.0#System_Net_Sockets_Socket_AcceptAsync_System_Net_Sockets_SocketAsyncEventArgs_
+
+                // 즉시 완료되어 Do_Listen()이벤트에서 On_Accept_Completed가 실행되는 거면, 이 스레드에서 실행되는 거니까.
+                // 스레드에서 On_Accept_Completed(null, this.accept_args)를 실행해 줘야 하지 않을까?
+                // 안그러면, 처리가 다 될 때가지, 수신 클라이언트가 계속 대기하며 쌓이게 될 테니까,
                 if (!pending)
-                    On_Accept_Completed(null, this.accept_args);
+                    On_Accept_Completed(null, this.accept_args);    
 
 
                 // 클라이언트 접속 처리가 완료되면 이벤트 객체의 신호를 전달받아 다시 루프를 수행하도록 합니다.

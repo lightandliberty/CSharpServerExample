@@ -38,7 +38,7 @@ namespace CSampleServer
         /// n개의 워커 스레드에서 호출될 수 있으므로, 공유 자원 접근시 동기화 처리를 해줘야 합니다.
         /// </summary>
         /// <param name="token"></param>
-        static void On_Session_Created(CUserToken token)
+        static void On_Session_Created(CUserToken token)    // On_New_Client(socket socket)에서 수동으로 호출됨.
         {
             CGameUser user = new CGameUser(token);
             lock(userlist)

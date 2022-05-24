@@ -175,6 +175,7 @@ namespace FreeNet
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e">소켓비동기이벤트객체는 완료된 받기 작업에 연관되어 있다.</param>
+        // Begin_Receive의 socket.ReceiveAsync(receive_args)의 수신 객체의 완료 콜백
         void Receive_Completed(object sender, SocketAsyncEventArgs e)
         {
             if(e.LastOperation == SocketAsyncOperation.Receive)
@@ -202,6 +203,7 @@ namespace FreeNet
         /// 만약 원격 호스트가 연결에서 닫힌다면, 소켓도 닫힌다.
         /// </summary>
         /// <param name="e"></param>
+        // Begin_Receive의 socket.ReceiveAsync(receive_args)의 수신 객체의 완료 콜백의 Socket.AsyncOperation.Receive == e.LastOperation일 경우 호출됨.
         private void Process_Receive(SocketAsyncEventArgs e)
         {
             // 원격 호스트가 연결에서 닫혔는지 확인한다.
